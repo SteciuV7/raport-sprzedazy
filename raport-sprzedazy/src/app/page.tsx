@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import dynamic from 'next/dynamic'
 import { Tabela } from '@/components/ui/tabela'
+import { eachDayOfInterval, format, parse } from 'date-fns'
 
 // Lazy-load komponent wykresów tylko na froncie
 const Wykresy = dynamic(() => import('@/components/ui/wykresy'), { ssr: false })
@@ -44,31 +45,43 @@ function generateChartDataFromReport(data: ReportItem[]) {
   
 }
 
+
+
 export function generateChartData(data: any[]) {
   const map = new Map<string, { date: string; count: number; netto: number }>()
 
   data.forEach(item => {
-    const date = (item['UTWORZONO DATA:'] || '').trim()
+    const rawDate = (item['UTWORZONO DATA:'] || '').trim()
     const netto = parseFloat(
       (item['WARTOŚĆ:'] || '0').toString().replace(/\s/g, '').replace(',', '.')
     )
+    if (!rawDate) return
 
-    if (!date) return
+    const parsedDate = parse(rawDate, 'dd.MM.yyyy', new Date())
+    const key = format(parsedDate, 'yyyy-MM-dd')
 
-    if (!map.has(date)) {
-      map.set(date, { date, count: 1, netto: parseFloat(netto.toFixed(2)) })
+    if (!map.has(key)) {
+      map.set(key, { date: key, count: 1, netto: parseFloat(netto.toFixed(2)) })
     } else {
-      const current = map.get(date)!
+      const current = map.get(key)!
       current.count += 1
       current.netto = parseFloat((current.netto + netto).toFixed(2))
     }
   })
 
-  return Array.from(map.values()).sort(
-    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
-  )
-  
+  const allDates = Array.from(map.keys()).sort()
+  if (allDates.length === 0) return []
+
+  const min = new Date(allDates[0])
+  const max = new Date(allDates[allDates.length - 1])
+  const fullRange = eachDayOfInterval({ start: min, end: max })
+
+  return fullRange.map(d => {
+    const key = format(d, 'yyyy-MM-dd')
+    return map.get(key) ?? { date: key, count: 0, netto: 0 }
+  })
 }
+
 
 
 
