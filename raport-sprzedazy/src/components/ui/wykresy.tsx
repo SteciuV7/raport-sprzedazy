@@ -445,30 +445,40 @@ export default function Wykresy({
                 />
 
                 {/* Legenda z ilością i procentem */}
-                <Legend
-                  layout="vertical"
-                  verticalAlign="middle"
-                  align="right"
-                  wrapperStyle={{
-                    width: "50%",
-                    paddingLeft: 0,
-                    marginLeft: "-40px",
-                  }}
-                  payload={byProducer.map((entry, index) => {
-                    const total = byProducer.reduce(
-                      (sum, p) => sum + (p.count || 0),
+                <Tooltip
+                  content={({ active, payload }) => {
+                    if (!active || !payload || payload.length === 0)
+                      return null;
+
+                    const item = payload[0] as any;
+                    const fullData = item?.payload?.fullData || [];
+
+                    const total = fullData.reduce(
+                      (sum: number, p: { count: number }) =>
+                        sum +
+                        (typeof p.count === "number"
+                          ? p.count
+                          : Number(p.count) || 0),
                       0
                     );
+
+                    const current =
+                      typeof item?.value === "number"
+                        ? item.value
+                        : Number(item?.value) || 0;
+
                     const percent = total
-                      ? ((entry.count / total) * 100).toFixed(1)
+                      ? ((current / total) * 100).toFixed(1)
                       : "0.0";
-                    return {
-                      id: index.toString(),
-                      value: `${entry.name} – ${entry.count} szt. (${percent}%)`,
-                      type: "square",
-                      color: COLORS[index % COLORS.length],
-                    };
-                  })}
+
+                    return (
+                      <div className="bg-white border border-gray-300 rounded px-3 py-2 shadow text-sm text-gray-800">
+                        <div className="font-semibold">{item?.name}</div>
+                        <div>{current} sztuk</div>
+                        <div>{percent}% udziału</div>
+                      </div>
+                    );
+                  }}
                 />
               </PieChart>
             </ResponsiveContainer>
