@@ -44,7 +44,7 @@ function formatCurrency(value: number): string {
   return `${value.toLocaleString("pl-PL", {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
-  })} zł`;
+  })} EUR`;
 }
 
 export default function Wykresy({
@@ -265,7 +265,7 @@ export default function Wykresy({
                   return [
                     `${Number(value).toLocaleString("pl-PL", {
                       minimumFractionDigits: 2,
-                    })} zł`,
+                    })} EUR`,
                     name,
                   ];
                 }
