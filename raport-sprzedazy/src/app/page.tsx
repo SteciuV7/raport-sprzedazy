@@ -272,7 +272,7 @@ export default function HomePage() {
       console.log(
         `→ ${item.pozycja} | ${item.count} szt. | ${item.kwotaNetto.toFixed(
           2
-        )} zł`
+        )} EUR`
       );
     });
 
