@@ -347,6 +347,39 @@ export default function HomePage() {
   const producenci = [...new Set(report.map((r) => r.producent))].sort();
   const pochodzenie = [...new Set(report.map((r) => r.pochodzenie))].sort();
 
+  const [authorized, setAuthorized] = useState(false);
+  const [passwordInput, setPasswordInput] = useState("");
+
+  if (!authorized) {
+    return (
+      <main className="p-8">
+        <Card className="p-6 max-w-md mx-auto">
+          <h1 className="text-xl font-semibold mb-4">
+            🔐 Wprowadź hasło dostępu
+          </h1>
+          <Input
+            type="password"
+            placeholder="Hasło"
+            value={passwordInput}
+            onChange={(e) => setPasswordInput(e.target.value)}
+            className="mb-4"
+          />
+          <Button
+            onClick={() => {
+              if (passwordInput === "JanArt123!@#") {
+                setAuthorized(true);
+              } else {
+                alert("❌ Niepoprawne hasło");
+              }
+            }}
+          >
+            Zatwierdź
+          </Button>
+        </Card>
+      </main>
+    );
+  }
+
   return (
     <main className="p-8">
       <Card className="p-4">
